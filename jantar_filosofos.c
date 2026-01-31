@@ -5,6 +5,8 @@
 
 // Ponteiros globais para alocação dinâmica
 pthread_mutex_t *forks;
+pthread_mutex_t meal_mutex;
+int total_meals = 0;
 int NUM_PHILOSOPHERS;
 
 void *philosopher(void *arg) {
@@ -40,6 +42,9 @@ void *philosopher(void *arg) {
 
         printf("Filosofo %d esta comendo.\n", id);
         sleep(rand() % 2); // Simula o tempo de comer
+        pthread_mutex_lock(&meal_mutex);
+        total_meals++; // Incrementa o contador de refeições
+        pthread_mutex_unlock(&meal_mutex);
 
         // Solta os garfos na ordem inversa
         pthread_mutex_unlock(&forks[second_fork]);
@@ -81,6 +86,8 @@ int main(int argc, char *argv[]) {
         pthread_mutex_init(&forks[i], NULL);
     }
 
+    pthread_mutex_init(&meal_mutex, NULL); // Inicializa o mutex do contador de refeições
+
     // Criação das threads (filósofos)
     printf("Iniciando o jantar dos filosofos com %d filosofos.\n", NUM_PHILOSOPHERS);
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
@@ -91,15 +98,25 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Espera pelas threads (na prática, elas rodam indefinidamente)
+    /* Espera pelas threads (na prática, elas rodam indefinidamente)
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
         pthread_join(threads[i], NULL); 
     }
+    */
+
+    // Rodaremos o jantar por 10 segundos a fim de validar o desempenho
+    printf("Coletando métricas por 10 segundos\n");
+    sleep(10);
+
+    printf("Filósofos: %d | Tempo: 10s\n", NUM_PHILOSOPHERS);
+    printf("Total de refeições consumidas: %d\n", total_meals);
+    printf("Throughput: %.2f refeições/segundo\n", total_meals / 10.0);
 
     // Liberação de memória e destruição dos mutexes
     free(threads);
     free(forks);
     free(ids);
+    pthread_mutex_destroy(&meal_mutex);
 
     return 0;
 }
