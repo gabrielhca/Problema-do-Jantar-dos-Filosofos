@@ -1,12 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -pthread
 
-TARGET = jantar_filosofos
 
-all: $(TARGET)
+all: deadlock solucao
 
-$(TARGET): jantar_filosofos.c 
-	$(CC) $(CFLAGS) jantar_filosofos.c -o $(TARGET)
+deadlock: cenario_deadlock.c
+	$(CC) $(CFLAGS) cenario_deadlock.c -o deadlock
+
+solucao: jantar_filosofos.c
+	$(CC) $(CFLAGS) jantar_filosofos.c -o solucao
 
 clean:
-	rm -f $(TARGET)
+	rm -f deadlock solucao
